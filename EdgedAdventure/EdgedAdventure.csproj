@@ -42,20 +42,23 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Block.cs" />
-    <Compile Include="Chunk.cs" />
-    <Compile Include="DirtItem.cs" />
+    <Compile Include="WorldInfo\Block.cs" />
+    <Compile Include="WorldInfo\Chunk.cs" />
+    <Compile Include="Entities\Effect.cs" />
+    <Compile Include="Entities\ItemEntity.cs" />
+    <Compile Include="WorldInfo\LoadedChunkManager.cs" />
     <Compile Include="LootDrop.cs" />
-    <Compile Include="Player.cs" />
-    <Compile Include="Space.cs" />
+    <Compile Include="Entities\Player.cs" />
+    <Compile Include="WorldInfo\SaveEntity.cs" />
+    <Compile Include="WorldInfo\Space.cs" />
     <Compile Include="EdgedAdventure.cs" />
-    <Compile Include="Entity.cs" />
+    <Compile Include="Entities\Entity.cs" />
     <Compile Include="Item.cs" />
-    <Compile Include="Menu.cs" />
-    <Compile Include="MenuPair.cs" />
+    <Compile Include="Tools\Menu.cs" />
+    <Compile Include="Tools\MenuPair.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ThreadQueue.cs" />
+    <Compile Include="Tools\ThreadQueue.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Framework">

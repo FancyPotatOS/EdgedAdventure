@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 
 namespace EdgedAdventure
 {
-    class Chunk
+    public class Chunk
     {
 
         public Space[,] spaces;
@@ -40,9 +37,28 @@ namespace EdgedAdventure
             coords = new int[]  { x, y, l };
         }
 
+        public bool EntityIsTouching(float[] raw)
+        {
+            for (int i = 0; i < ents.Count; i++)
+            {
+                float[] entCoord = { ents[i].X, ents[i].Y };
+                float[,] hitbox = ents[i].hitbox;
+
+                float[] dis = { raw[0] - entCoord[0], raw[1] - entCoord[1] };
+
+                if (hitbox[1, 0] <= dis[0] && dis[0] <= hitbox[0, 0])
+                {
+                    if (hitbox[1, 1] <= dis[1] && dis[1] <= hitbox[0, 1])
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
         public static Chunk GetChunk(int cX, int cY, int l)
         {
-
             { }
 
             StreamReader file;
@@ -55,9 +71,9 @@ namespace EdgedAdventure
 
             string chunkRaw = null;
             Space[,] spaces = new Space[8, 8];
-            if (File.Exists(root + @"blocks.blocks"))
+            if (File.Exists(root + @"blocks"))
             {
-                file = File.OpenText(root + @"blocks.blocks");
+                file = File.OpenText(root + @"blocks");
                 chunkRaw = file.ReadToEnd();
                 file.Close();
             }
@@ -98,12 +114,12 @@ namespace EdgedAdventure
                         spaces[x, y] = new Space(currBlocks);
                         currBlocks = new List<Block>();
                         coll = "";
-                        
+
                         if (y == 7) x++;
                         y = (y + 1) % 8;
                     }
                 }
-                return new Chunk(spaces, e, new int[] { cX, cY, l});
+                return new Chunk(spaces, e, new int[] { cX, cY, l });
             }
             else
             {
@@ -129,26 +145,54 @@ namespace EdgedAdventure
             {
                 for (int y = 0; y < 8; y++)
                 {
-                    List<Block> bL = c.spaces[x, y].blocks;
-                    for (int i = 0; i < bL.Count; i++)
-                    {
-                        coll += bL[i].id;
-                        if (i != (bL.Count - 1))
-                        {
-                            coll += "&";
-                        }
-                    }
+                    coll += c.spaces[x, y].ToSaveString();
                     coll += ",";
                 }
             }
-            File.WriteAllText(root + "blocks.blocks", coll);
+            File.WriteAllText(root + "blocks", coll);
 
             Directory.CreateDirectory(root + "ents");
             for (int i = 0; i < c.ents.Count; i++)
             {
                 Directory.CreateDirectory(root + @"ents\" + i);
-                Entity.SaveEntity((root + @"ents\" + i + @"\"), c.ents[i]);
+                c.ents[i].Save((root + @"ents\" + i + @"\"));
             }
         }
+
+        public static void SaveToChunk(int[] pos, Entity e)
+        {
+            string root = @"world\chunks\" + pos[0] + "," + pos[1] + "," + pos[2] + @"\ents\";
+            
+            if (!Directory.Exists(root) )
+            {
+                return;
+            }
+
+            string[] dirs = Directory.GetDirectories(root);
+            Directory.CreateDirectory(root + dirs.Length);
+            root += "" + dirs.Length;
+            e.Save(root);
+        }
+
+        public void Update()
+        {
+            for (int i = 0; i < ents.Count; i++)
+            {
+                Object o = ents[i].Update();
+                if (o == null)
+                {
+                    continue;
+                }
+                else if (o is bool)
+                {
+                    if ((bool)o)
+                    {
+                        ents.RemoveAt(i);
+                        i--;
+                    }
+                }
+            }
+        }
+
     }
 }

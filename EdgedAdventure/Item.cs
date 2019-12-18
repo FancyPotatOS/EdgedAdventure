@@ -7,39 +7,52 @@ using System.IO;
 
 namespace EdgedAdventure
 {
-    class Item : Entity
+    public class Item
     {
 
+        public uint id;
+        public string tile;
         public uint amount;
         public uint attackBonus;
         public EdgedAdventure.ItemAction use;
         public uint mineBonus;
+        public uint pierce;
         public bool canDig;
         public bool canUse;
 
-        public Item(uint thisID, string n, string t, uint a, uint at, EdgedAdventure.ItemAction iA, uint m, bool cD, bool cU) : base(thisID, 0, 0, t, n, null, 0, -1, -1, -1, -1, -1)
+        public uint blockID;
+        public uint[] placeableLayers;
+
+        public Item(uint thisID, string t, uint a)
         {
-            name = n;
+            id = thisID;
             tile = t;
             amount = a;
-            attackBonus = at;
-            use = iA;
-            mineBonus = m;
-            canDig = cD;
-            canUse = cU;
         }
 
         public static Item GetItem(uint value, uint amount)
         {
             if (value == 0)
             {
-                return new DirtItem(0, amount);
+                Item dirt = new Item(value, @"item\dirt", amount);
+                {
+                    dirt.canUse = true;
+                    dirt.use = EdgedAdventure.ItemAction.place;
+                    dirt.blockID = 1;
+                    dirt.placeableLayers = new uint[] { 0 };
+                }
+
+                return dirt;
             }
             else if (value == 1)
             {
-
+                Item door = new Item(value, @"tiles\wooden_door", amount);
+                return door;
             }
-            return new Item(value, "Blank Item", @"text\question_mark", amount, 0, EdgedAdventure.ItemAction.none, 0, false, false);
+            else
+            {
+                return new Item(value, @"text\question_mark", amount);
+            }
         }
 
         public static Item GetItem(string filePath)
@@ -62,5 +75,20 @@ namespace EdgedAdventure
             File.WriteAllText(root + "id", "" + i.id);
             File.WriteAllText(root + "amount", "" + i.amount);
         }
+
+        public Item Copy()
+        {
+            Item copy = new Item(id, tile, amount);
+            {
+                copy.attackBonus = this.attackBonus;
+                copy.use = this.use;
+                copy.mineBonus = this.mineBonus;
+                copy.pierce = this.pierce;
+                copy.canDig = this.canDig;
+                copy.canUse = this.canUse;
+            }
+            return copy;
+        }
+
     }
 }

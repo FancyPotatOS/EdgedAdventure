@@ -7,15 +7,15 @@ using System.IO;
 
 namespace EdgedAdventure
 {
-    class LootDrop
+    public class LootDrop
     {
         public float chance;
-        public Item drop;
+        public uint drop;
         public uint[] range;
 
         public static Random dropCalc = new Random();
 
-        public LootDrop(float c, Item i, uint[] r)
+        public LootDrop(float c, uint i, uint[] r)
         {
             range = r;
             chance = c;
@@ -27,8 +27,8 @@ namespace EdgedAdventure
             if (dropCalc.NextDouble() < chance)
             {
                 uint calcAmount = (uint)Math.Floor((dropCalc.NextDouble() * (range[1]-range[0]))) + range[0];
-                drop.amount = calcAmount;
-                return drop;
+                Item item = Item.GetItem(drop, calcAmount);
+                return item;
             }
             else
             {
@@ -41,14 +41,13 @@ namespace EdgedAdventure
             if (!Directory.Exists(filePath)) return null;
 
             float ch = float.Parse(File.ReadAllText(filePath + @"\chance"));
-
-            Item i = Item.GetItem(filePath + @"\drop");
+            uint item = UInt32.Parse(File.ReadAllText(filePath + @"\drop"));
 
             uint[] r = new uint[2];
             r[0] = UInt32.Parse(File.ReadAllText(filePath + @"\rangel"));
             r[1] = UInt32.Parse(File.ReadAllText(filePath + @"\rangeh"));
 
-            return new LootDrop(ch, i, r);
+            return new LootDrop(ch, item, r);
         }
 
         public static void SaveLootDrop(string root, LootDrop lD)
@@ -57,9 +56,7 @@ namespace EdgedAdventure
             File.WriteAllText(root + "chance", "" + lD.chance);
             File.WriteAllText(root + "rangel", "" + lD.range[0]);
             File.WriteAllText(root + "rangeh", "" + lD.range[1]);
-
-            Directory.CreateDirectory(root + @"item");
-            Item.SaveItem(root + @"item\", lD.drop);
+            File.WriteAllText(root + "drop", "" + lD.drop);
         }
     }
 }
